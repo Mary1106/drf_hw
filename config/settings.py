@@ -23,7 +23,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "lms",
+    "django_filters",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -100,8 +105,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
-       'DEFAULT_AUTHENTICATION_CLASSES': [
-           'rest_framework.authentication.SessionAuthentication',
-           'rest_framework.authentication.BasicAuthentication',
-       ],
-   }
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+    ],
+}
