@@ -1,5 +1,4 @@
 from rest_framework.serializers import ModelSerializer
-
 from users.models import User, Payment
 
 
@@ -22,3 +21,4 @@ class UserDetailSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'phone', 'city', 'avatar', 'payments']
+

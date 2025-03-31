@@ -8,7 +8,7 @@ from rest_framework.generics import (
     DestroyAPIView,
     ListAPIView,
     RetrieveAPIView,
-    UpdateAPIView,
+    UpdateAPIView
 )
 
 
@@ -23,7 +23,7 @@ class PaymentViewSet(ModelViewSet):
 class UserCreateAPIView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
         user = serializer.save(is_active=True)
