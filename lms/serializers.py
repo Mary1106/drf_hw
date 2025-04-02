@@ -35,12 +35,13 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     lessons_in_course_count = serializers.SerializerMethodField()
     subscription = serializers.SerializerMethodField()
 
-
     def get_lessons_in_course_count(self, object):
         return object.lessons.count()
 
     def get_subscription(self, object):
-        if Subscription.objects.filter(user=object.owner, course=object.pk):
+        request = self.context['request']
+        user = request.user
+        if Subscription.objects.filter(user=user.pk, course=object.pk):
             return "Вы подписаны"
         return "Вы не подписаны"
 
