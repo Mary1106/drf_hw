@@ -36,6 +36,12 @@ class Course(models.Model):
         null=True,
         verbose_name='Цена курса'
     )
+    stripe_product_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="ID продукта Stripe"
+    )
 
     class Meta:
         verbose_name = "Курс"
@@ -78,6 +84,18 @@ class Lesson(models.Model):
         null=True,
         related_name="lesson_owner",
         verbose_name='Владелец урока'
+    )
+    stripe_product_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="ID продукта Stripe"
+    )
+    price = models.PositiveIntegerField(
+        default=0,
+        blank=True,
+        null=True,
+        verbose_name='Цена урока'
     )
 
     class Meta:
