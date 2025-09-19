@@ -23,7 +23,7 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    course = CourseSerializer(read_only=True)
+    course = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Subscription
@@ -33,12 +33,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 class CourseDetailSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(read_only=True, many=True)
     lessons_in_course_count = serializers.SerializerMethodField()
-    subscription = serializers.SerializerMethodField()
+    subscription_status = serializers.SerializerMethodField()
 
     def get_lessons_in_course_count(self, object):
         return object.lessons.count()
 
-    def get_subscription(self, object):
+    def get_subscription_status(self, object):
         request = self.context['request']
         user = request.user
         if Subscription.objects.filter(user=user.pk, course=object.pk):
@@ -48,4 +48,4 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ["id", "title", "preview", "description", "lessons_in_course_count", "lessons", "owner",
-                  "subscription", "price"]
+                  "subscription_status", "price"]
