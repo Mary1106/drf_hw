@@ -73,7 +73,7 @@ DATABASES = {
         "NAME": os.getenv("DATABASE_NAME"),
         "USER": os.getenv("DATABASE_USER"),
         "PASSWORD": os.getenv("DATABASE_PASSWORD"),
-        "HOST": os.getenv("DATABASE_HOST"),
+        "HOST": os.getenv("DATABASE_HOST", 'db'),
         "PORT": os.getenv("DATABASE_PORT"),
     }
 }
@@ -141,3 +141,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(hours=24),
     },
 }
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+DATABASE_URL = os.getenv("DATABASE_URL")
