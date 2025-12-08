@@ -1,5 +1,7 @@
 from django.db import models
 
+from config import settings
+
 
 class Course(models.Model):
     title = models.CharField(
@@ -20,6 +22,26 @@ class Course(models.Model):
         blank=True,
         null=True,
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="course_owner",
+        verbose_name='Владелец курса'
+    )
+    price = models.PositiveIntegerField(
+        default=0,
+        blank=True,
+        null=True,
+        verbose_name='Цена курса'
+    )
+    stripe_product_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="ID продукта Stripe"
+    )
 
     class Meta:
         verbose_name = "Курс"
@@ -32,8 +54,8 @@ class Course(models.Model):
 class Lesson(models.Model):
     title = models.CharField(
         max_length=250,
-        verbose_name="Название курса",
-        help_text="Введите название курса",
+        verbose_name="Название урока",
+        help_text="Введите название урока",
     )
     preview = models.ImageField(
         upload_to="lms/lessons/previews",
@@ -42,8 +64,39 @@ class Lesson(models.Model):
         blank=True,
         null=True,
     )
-    video_url = models.URLField(blank=True, null=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
+    video_url = models.URLField(
+        verbose_name="Ссылка на видео",
+        help_text="Укажите ссылку на видео",
+        blank=True,
+        null=True
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name="Курс",
+        help_text="Укажите курс, к которому относится урок",
+        related_name="lessons"
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="lesson_owner",
+        verbose_name='Владелец урока'
+    )
+    stripe_product_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="ID продукта Stripe"
+    )
+    price = models.PositiveIntegerField(
+        default=0,
+        blank=True,
+        null=True,
+        verbose_name='Цена урока'
+    )
 
     class Meta:
         verbose_name = "Урок"
@@ -51,3 +104,16 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'course')
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f'{self.user.email} подписан на {self.course.title}'
