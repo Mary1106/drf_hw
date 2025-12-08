@@ -9,6 +9,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 
 DEBUG = True if os.getenv("DEBUG") == "True" else False
 
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     "users",
     "lms",
     "django_filters",
+    "drf_yasg",
 ]
 
 REST_FRAMEWORK = {
@@ -109,6 +111,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 AUTH_USER_MODEL = "users.User"
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=555),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
