@@ -1,0 +1,65 @@
+# Игнорировать директорию виртуального окружения
+.venv/
+.venv
+venv/
+venv
+
+# Игнорировать файлы окружения
+# .env
+# .env.local
+# .flaskenv
+
+# Игнорировать файлы Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Игнорировать файлы IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# Игнорировать файлы сборки
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Игнорировать временные файлы
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Игнорировать файлы логов
+logs/
+*.log
+
+# Игнорировать медиафайлы (если они есть в разработке)
+media/
+staticfiles/
+
+# Игнорировать файлы документации
+docs/
+*.pdf
+
+# Игнорировать файлы исходного кода сторонних библиотек
+node_modules/
+
+# Игнорировать файлы контроля версий
+.git/
+.gitignore
+.gitattributes
+
+# Игнорировать файлы Docker
+.dockerignore
+Dockerfile
+docker-compose.*
+
+# Игнорировать файлы кэша
+*.cache
+*.tmp
+
+# Игнорировать файлы отладки
+.DS_Store
+Thumbs.db

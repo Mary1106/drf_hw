@@ -42,6 +42,11 @@ class Course(models.Model):
         null=True,
         verbose_name="ID продукта Stripe"
     )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = "Курс"
