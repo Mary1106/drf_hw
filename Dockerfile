@@ -3,6 +3,10 @@ FROM python:3.12-slim
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
 # Копируем requirements.txt первым для оптимизации кэширования
 COPY requirements.txt .
 
@@ -11,9 +15,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Добавляем python-dotenv для работы с .env файлом
 RUN pip install python-dotenv
-
-# Копируем .env файл в контейнер
-COPY .env .
 
 # Копируем остальные файлы проекта
 COPY . .
@@ -26,8 +27,6 @@ RUN chmod -R 755 /app/static
 
 # Настраиваем переменные окружения
 ENV DOTENV_LOAD=true
-
-# Собираем статические файлы
-RUN python manage.py collectstatic --noinput
+ENV DOCKER_ENV=true
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
