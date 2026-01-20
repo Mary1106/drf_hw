@@ -1,125 +1,125 @@
-#name: Django CI/CD
-#on:
-#  push:
-#  pull_request:
-#
-#jobs:
-#  test:
-#    runs-on: ubuntu-latest
-#    services:
-#      postgres:
-#        image: postgres:14
-#        env:
-#          POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-#          POSTGRES_DB: drf_test
-#        ports:
-#          - 5432:5432
-#        options: >-
-#          --health-cmd pg_isready
-#          --health-interval 10s
-#          --health-timeout 5s
-#          --health-retries 5
-#
-#
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: Set up Python
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.10'
-#
-#      - name: Install dependencies
-#        run: |
-#          pip install --upgrade pip
-#          pip install -r requirements.txt
-#
-#      - name: Wait for PostgreSQL
-#        run: |
-#          for i in {1..30}; do
-#            pg_isready -h localhost -p 5432 -U postgres && exit 0
-#            echo "PostgreSQL not ready, waiting..."
-#            sleep 1
-#          done
-#          exit 1
-#
-#      - name: Run migrations
-#        env:
-#          DJANGO_SETTINGS_MODULE: config.settings
-#          DB_NAME: drf_test
-#          DB_USER: postgres
-#          DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-#          DB_HOST: localhost
-#          DB_PORT: 5432
-#        run: python manage.py migrate
-#
-#      - name: Run tests
-#        env:
-#          DJANGO_SETTINGS_MODULE: config.settings
-#          DB_NAME: drf_test
-#          DB_USER: postgres
-#          DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-#          DB_HOST: localhost
-#          DB_PORT: 5432
-#          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-#        run: |
-#          pytest --verbose --exitfirst || exit 1
-#
-#
-#  build-and-push:
-#    needs: test
-#    runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: Log in to Docker Hub
-#        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-#
-#      - name: Build Docker image
-#        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }} .
-#
-#      - name: Push Docker image to Docker Hub
-#        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-#
-#
-#  deploy:
-#    needs: build-and-push
-#    runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-#    steps:
-#      - name: Deploy via SSH
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST }}
-#          username: ${{ secrets.SSH_USER }}
-#          key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          port: ${{ secrets.SSH_PORT }}
-#          script: |
-#            # 1. Остановить контейнер (если есть)
-#            docker stop myapp || true
-#            docker rm myapp || true
-#
-#
-#            # 2. Скачать новый образ
-#            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-#
-#            # 3. Запуск нового контейнера
-#            docker run -d \
-#              --name myapp \
-#              -p 8000:8000 \
-#              -e DJANGO_SETTINGS_MODULE=config.settings \
-#              -e DB_NAME=drf_prod \
-#              -e DB_USER=postgres \
-#              -e DB_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
-#              -e DB_HOST=postgres_host \
-#              -e DB_PORT=5432 \
-#              -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
-#              ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-#
-#            # 4. Перезапуск nginx/gunicorn
-#            sudo systemctl restart gunicorn || true
-#
-#            echo "Deployment completed!"
+name: Django CI/CD
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          POSTGRES_DB: drf_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U postgres && exit 0
+            echo "PostgreSQL not ready, waiting..."
+            sleep 1
+          done
+          exit 1
+
+      - name: Run migrations
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+          DB_NAME: drf_test
+          DB_USER: postgres
+          DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DB_HOST: localhost
+          DB_PORT: 5432
+        run: python manage.py migrate
+
+      - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+          DB_NAME: drf_test
+          DB_USER: postgres
+          DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DB_HOST: localhost
+          DB_PORT: 5432
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          pytest --verbose --exitfirst || exit 1
+
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }} .
+
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # 1. Остановить контейнер (если есть)
+            docker stop myapp || true
+            docker rm myapp || true
+
+
+            # 2. Скачать новый образ
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+
+            # 3. Запуск нового контейнера
+            docker run -d \
+              --name myapp \
+              -p 8000:8000 \
+              -e DJANGO_SETTINGS_MODULE=config.settings \
+              -e DB_NAME=drf_prod \
+              -e DB_USER=postgres \
+              -e DB_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
+              -e DB_HOST=postgres_host \
+              -e DB_PORT=5432 \
+              -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
+              ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+
+            # 4. Перезапуск nginx/gunicorn
+            sudo systemctl restart gunicorn || true
+
+            echo "Deployment completed!"
